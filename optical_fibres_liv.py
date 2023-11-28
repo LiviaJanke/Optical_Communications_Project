@@ -81,7 +81,7 @@ for i in np.arange(0, len(beta_test_array_valid)):
         func_vals.append(lhs)
         
         
-
+print(len(index_vals))
 
 beta_val_m0 = beta_test_array_valid[index_vals[0]]
 
@@ -105,13 +105,13 @@ for i in np.arange(0, len(beta_test_array_valid)):
     
     rhs = rhs_m1[i]
     
-    if np.abs(lhs - rhs) < 0.0001:
+    if np.abs(lhs - rhs) < 0.00003:
         
         index_vals.append(i)
         
         func_vals.append(lhs)
         
-
+print(len(index_vals))
 
 beta_val_m1 = beta_test_array_valid[index_vals[0]]
 
@@ -140,13 +140,17 @@ for i in np.arange(0, len(beta_test_array_valid)):
         
         func_vals.append(lhs)
         
-
+print(len(index_vals))
 
 beta_val_m2 = beta_test_array_valid[index_vals[0]]
 
 #%%
 
 # Repeating for m = 3:
+
+# no solution for m = 3 or m = 4
+
+# fibre has 3 modes  (0,1,2)
 
 lhs_m3 = jv(4, (p_vals * a)) / (p_vals * a * jv(3, (p_vals * a)))
 
@@ -161,13 +165,14 @@ for i in np.arange(0, len(beta_test_array_valid)):
     
     rhs = rhs_m3[i]
     
-    if np.abs(lhs - rhs) < 0.001:
+    if np.abs(lhs - rhs) < 1:
         
         index_vals.append(i)
         
         func_vals.append(lhs)
         
 
+print(len(index_vals))
 
 beta_val_m3 = beta_test_array_valid[index_vals[0]]
 
@@ -212,18 +217,40 @@ plt.show()
 
 #%%
 
+# fibre has modes 0,1,2 - appropriate for V value close to 5
+
 # find propagation constant and effective index for each mode
 
+# beta is the propagation constant
+
+# beta_bar = beta / k0 is the effective index
+
+effective_index_m0 = beta_val_m0 / k0
+
+effective_index_m1 = beta_val_m1 / k0
+
+effective_index_m2 = beta_val_m2 / k0
 
 
+#%%
+
+print('Mode 0:')
+print(beta_val_m0)
+print(effective_index_m0)
 
 
+print('Mode 1:')
+print(beta_val_m1)
+print(effective_index_m1)
+
+print('Mode 2:')
+print(beta_val_m2)
+print(effective_index_m2)
+
+#%%
 
 
-
-
-
-
+# looking at mode 2 for tasks 5-8
 
 
 
