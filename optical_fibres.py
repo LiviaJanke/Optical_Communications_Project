@@ -1,8 +1,14 @@
+
+
 import pandas as pd
 from scipy.optimize import fsolve
 from scipy.constants import pi
 from scipy.special import jv, kv
 import numpy as np
+import matplotlib.pyplot as plt
+
+
+#%%
 
 # Given parameters
 wavelength = 1450e-9  # Wavelength in meters
