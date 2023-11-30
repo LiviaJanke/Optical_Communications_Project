@@ -93,6 +93,7 @@ def get_solutions(lmin,lmax):
 
 
 #%%
-
+# Just run this to return the beta values, ignore the duplicates! 
+get_solutions(0,4)
 
 
