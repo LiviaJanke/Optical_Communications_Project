@@ -7,8 +7,8 @@ Created on Mon Nov 27 14:09:23 2023
 
 import pandas as pd
 from scipy.optimize import fsolve
-from scipy.constants import pi
-from scipy.special import jv, kv
+from scipy.constants import pi, epsilon_0, mu_0
+from scipy.special import jv, kv, jvp
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -284,7 +284,233 @@ print(effective_index_m2)
 
 # set A to unity
 
-B = jv(3, (p_vals*a)) / (kv(3, q_vals * a))
+B = jv(2, (p_vals*a)) / (kv(2, q_vals * a))
+
+A = 1
+
+beta = beta_val_m2
+
+phi = np.linspace(0, (2 * np.pi), len(B))
+
+m = 2
+
+omega = np.sqrt((k0 **2)/ (epsilon_0 * mu_0))
+
+r = np.linspace(0, a, len(B))
+
+#%%
+
+# Core region
+
+
+
+r = np.linspace(0, a, len(B))
+
+E_z = A * jv(2, (p_vals * r))
+
+
+plt.plot(r, E_z)
+plt.show()
+
+
+E_r = - ((1j * beta) / (p_vals **2))  *  ((A * p_vals * jvp(m, (p_vals * r), n = 1)) + (1j * omega * (mu_0 * m / beta * r) * B * jv(m, (p_vals * r))) )
+
+plt.plot(r, E_r)
+plt.show()
+
+E_phi =  - ((1j * beta) / (p_vals **2)) * (((1j * m / r) * A * jv(m, (p_vals * r))) - ((omega * mu_0 / beta) * p_vals * B * jvp(m, (p_vals * r), n=1)))
+
+
+plt.plot(r, E_phi)
+plt.show()
+
+#%%
+
+l = 1
+# l can also be m + 1 or m - 1
+
+
+E_vals = E_r * np.exp((1j * l * E_phi) - (1j * beta * E_z))
+
+plt.plot(r, E_vals)
+
+#%%
+
+# Creating a new figure and setting up the resolution
+fig = plt.figure(dpi=200)
+
+# Change the coordinate system from scaler to polar
+ax = fig.add_subplot(projection='polar')
+
+
+plt.polar(E_phi,E_r,marker='o')
+
+# Displaying the plot
+plt.plot()
+# Yeah that doesn't seem quite right
+# Trying the cartesian equations?
+
+#%%
+
+# Cartesian version
+
+# Y-polarised modes
+
+# core r < a
+
+l = 1
+
+# l can also be m + 1 or m - 1
+# this may be the 3 fields that the question mentioned?
+# maybe
+
+
+
+E_x_core_y_pol = 0 
+
+E_y_core_y_pol = A * jv(l, (p_vals * r))
+
+E_z_core_y_pol = (p_vals / beta) * (A / 2) * ((jv(l+1, (p_vals * r)) * np.exp(1j * phi)) + (jv(l-1, (p_vals * r)) * np.exp(-1j * phi)))
+
+plt.plot(r, E_y_core_y_pol)
+plt.plot(r, E_z_core_y_pol)
+#plt.plot(r, E_x_core_y_pol)
+plt.show()
+
+# amplitude in plane perpendicular to fibre axis - just E_y in this case since E_x is zero?
+# how does E_z factor in?
+
+
+# cladding r > a
+
+r_clad = np.linspace(a, 3 * a, len(B))
+
+E_x_clad_y_pol = 0
+
+E_y_clad_y_pol = B * kv(l, (q_vals * r_clad))
+
+E_z_clad_y_pol = (q_vals / beta) * (B/2) * ((kv(l+1, (q_vals * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q_vals * r_clad)) * np.exp(-1j * phi)))
+
+
+plt.plot(r_clad, E_y_clad_y_pol)
+plt.plot(r_clad, E_z_clad_y_pol)
+#plt.plot(r, E_x_clad_y_pol)
+plt.show()
+
+
+plt.plot(r, E_y_core_y_pol, label = 'E_y')
+plt.plot(r, E_z_core_y_pol, label = 'E_z')
+plt.plot(r_clad, E_y_clad_y_pol, label = 'E_y')
+plt.plot(r_clad, E_z_clad_y_pol, label = 'E_z')
+plt.legend()
+plt.show()
+
+#%%
+
+l = m + 1
+
+E_x_core_y_pol = 0 
+
+E_y_core_y_pol = A * jv(l, (p_vals * r))
+
+E_z_core_y_pol = (p_vals / beta) * (A / 2) * ((jv(l+1, (p_vals * r)) * np.exp(1j * phi)) + (jv(l-1, (p_vals * r)) * np.exp(-1j * phi)))
+
+plt.plot(r, E_y_core_y_pol)
+plt.plot(r, E_z_core_y_pol)
+#plt.plot(r, E_x_core_y_pol)
+plt.show()
+
+# amplitude in plane perpendicular to fibre axis - just E_y in this case since E_x is zero?
+# how does E_z factor in?
+
+
+# cladding r > a
+
+r_clad = np.linspace(a, 3 * a, len(B))
+
+E_x_clad_y_pol = 0
+
+E_y_clad_y_pol = B * kv(l, (q_vals * r_clad))
+
+E_z_clad_y_pol = (q_vals / beta) * (B/2) * ((kv(l+1, (q_vals * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q_vals * r_clad)) * np.exp(-1j * phi)))
+
+
+plt.plot(r_clad, E_y_clad_y_pol)
+plt.plot(r_clad, E_z_clad_y_pol)
+#plt.plot(r, E_x_clad_y_pol)
+plt.show()
+
+
+plt.plot(r, E_y_core_y_pol, label = 'E_y')
+plt.plot(r, E_z_core_y_pol, label = 'E_z')
+plt.plot(r_clad, E_y_clad_y_pol, label = 'E_y')
+plt.plot(r_clad, E_z_clad_y_pol, label = 'E_z')
+plt.legend()
+plt.show()
+
+#%%
+
+
+l = m - 1
+
+E_x_core_y_pol = 0 * B
+
+E_y_core_y_pol = A * jv(l, (p_vals * r))
+
+E_z_core_y_pol = (p_vals / beta) * (A / 2) * ((jv(l+1, (p_vals * r)) * np.exp(1j * phi)) + (jv(l-1, (p_vals * r)) * np.exp(-1j * phi)))
+
+plt.plot(r, E_y_core_y_pol)
+plt.plot(r, E_z_core_y_pol)
+plt.plot(r, E_x_core_y_pol)
+plt.show()
+
+# amplitude in plane perpendicular to fibre axis - just E_y in this case since E_x is zero?
+# how does E_z factor in?
+
+
+# cladding r > a
+
+r_clad = np.linspace(a, 3 * a, len(B))
+
+E_x_clad_y_pol = 0 * B
+
+E_y_clad_y_pol = B * kv(l, (q_vals * r_clad))
+
+E_z_clad_y_pol = (q_vals / beta) * (B/2) * ((kv(l+1, (q_vals * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q_vals * r_clad)) * np.exp(-1j * phi)))
+
+
+plt.plot(r_clad, E_y_clad_y_pol)
+plt.plot(r_clad, E_z_clad_y_pol)
+plt.plot(r, E_x_clad_y_pol)
+plt.show()
+
+
+plt.plot(r, E_y_core_y_pol, label = 'E_y')
+plt.plot(r, E_z_core_y_pol, label = 'E_z')
+plt.plot(r_clad, E_y_clad_y_pol, label = 'E_y')
+plt.plot(r_clad, E_z_clad_y_pol, label = 'E_z')
+plt.legend()
+plt.show()
+
+#%%
+
+# X-polarised modes
+
+E_x_core_x_pol = A * jv(l, (p_vals * r))
+
+E_y_core_x_pol = B * 0
+
+E_z
+
+
+
+
+
+
+
+
+
+
 
 
 
