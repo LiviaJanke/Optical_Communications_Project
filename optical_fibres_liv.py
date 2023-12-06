@@ -11,7 +11,8 @@ from scipy.constants import pi, epsilon_0, mu_0
 from scipy.special import jv, kv, jvp
 import numpy as np
 import matplotlib.pyplot as plt
-
+from cmath import pi, e, polar
+from numpy import linspace, vectorize, sin, cos
 
 #%%
 
@@ -284,9 +285,9 @@ print(effective_index_m2)
 
 # set A to unity
 
-B = jv(2, (p_vals*a)) / (kv(2, q_vals * a))
-
 A = 1
+
+B = A *  jv(2, (p_vals*a)) / (kv(2, q_vals * a))
 
 beta = beta_val_m2
 
@@ -296,15 +297,10 @@ m = 2
 
 omega = np.sqrt((k0 **2)/ (epsilon_0 * mu_0))
 
-r = np.linspace(0, a, len(B))
+r = np.linspace(-a, a, len(B))
 
 #%%
 
-# Core region
-
-
-
-r = np.linspace(0, a, len(B))
 
 E_z = A * jv(2, (p_vals * r))
 
@@ -318,6 +314,7 @@ E_r = - ((1j * beta) / (p_vals **2))  *  ((A * p_vals * jvp(m, (p_vals * r), n =
 plt.plot(r, E_r)
 plt.show()
 
+
 E_phi =  - ((1j * beta) / (p_vals **2)) * (((1j * m / r) * A * jv(m, (p_vals * r))) - ((omega * mu_0 / beta) * p_vals * B * jvp(m, (p_vals * r), n=1)))
 
 
@@ -326,13 +323,12 @@ plt.show()
 
 #%%
 
-l = 1
+#l = 1
 # l can also be m + 1 or m - 1
 
+#E_vals = E_r * np.exp((1j * l * E_phi) - (1j * beta * E_z))
 
-E_vals = E_r * np.exp((1j * l * E_phi) - (1j * beta * E_z))
-
-plt.plot(r, E_vals)
+#plt.plot(r, E_vals)
 
 #%%
 
@@ -347,8 +343,107 @@ plt.polar(E_phi,E_r,marker='o')
 
 # Displaying the plot
 plt.plot()
+
+#%%
+
+# E_total in the x-y plane:
+    
+E_tot = E_r + E_phi
+
+# Plotting Argand Diagrams
+
+fig,ax = plt.subplots()
+
+ax.scatter(E_tot.real,E_tot.imag, marker = '.')
+
+#%%
+
+
+# Plot numbers on polar projection
+# Yeah this isn't working too great
+
+# https://stackoverflow.com/questions/17445720/how-to-plot-complex-numbers-argand-diagram-using-matplotlib
+
+
+
+#vect_polar = vectorize(polar)
+#rho_theta = vect_polar(E_r)
+
+#fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+#ax.stem(rho_theta[1], rho_theta[0])
+
+# Get a number, find projections on axes
+
+#for i in np.arange(0, len(rho_theta[0]), 1):
+#    n = i
+#    rho, theta = rho_theta[0][n], rho_theta[1][n]
+#    a = cos(theta)
+#    b = sin(theta)
+#    rho_h, theta_h = abs(a)*rho, 0 if a >= 0 else -pi
+#    rho_v, theta_v = abs(b)*rho, pi/2 if b >= 0 else -pi/2
+
+
+    # Plot h/v lines on polar projection
+#    ax.plot((theta_h, theta), (rho_h, rho), c='r', ls='--')
+#    ax.plot((theta, theta_v), (rho, rho_v), c='g', ls='--')
+
+#%%
+
+# what about just multiplying into x-y?
+
+# x = r cos theta
+# y = r sin theta
+
+#cmath.polar(x)
+#Return the representation of x in polar coordinates. Returns a pair (r, phi) where r is the modulus of x and phi is the phase of x. polar(x) is equivalent to (abs(x), phase(x)).
+x_vals = []
+y_vals = []
+
+x_vals_phi = []
+y_vals_phi = []
+
+r_vals = []
+theta_vals = []
+
+for i in np.arange(0, len(E_r), 1):
+    E_r_polar = polar(E_r[i])
+    r_vals.append(E_r_polar[0])
+    #theta_vals.append(E_r_polar[1])
+    x = E_r_polar[0] * np.cos(E_r_polar[1])
+    y = E_r_polar[0] * np.sin(E_r_polar[1])
+    x_vals.append(x)
+    y_vals.append(y)
+    
+plt.plot(x_vals,y_vals)
+plt.show()
+
+
+for i in np.arange(0, len(E_phi), 1):
+    E_r_polar = polar(E_phi[i])
+    #r_vals.append(E_r_polar[0])
+    theta_vals.append(E_r_polar[1])
+    x = E_r_polar[0] * np.cos(E_r_polar[1])
+    y = E_r_polar[0] * np.sin(E_r_polar[1])
+    x_vals_phi.append(x)
+    y_vals_phi.append(y)
+    
+plt.plot(x_vals_phi,y_vals_phi)
+plt.show()
+
+# this kinda works for plotting - not too sure about the equations though!
+
+
+
+
+#%%
+
+fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
+ax.plot(theta_vals, r_vals, linewidth = 0, marker = '.')
+
+
 # Yeah that doesn't seem quite right
 # Trying the cartesian equations?
+
 
 #%%
 
