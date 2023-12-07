@@ -282,40 +282,52 @@ print(effective_index_m2)
 
 
 # looking at mode 2 for tasks 5-8
+m = 2
+
+beta = beta_val_m2
+
+q = np.sqrt((beta**2) - ((n2**2) * (k0**2)))
+
+p = np.sqrt(((n1**2) * (k0**2)) - (beta**2))
+
 
 # set A to unity
 
 A = 1
 
-B = A *  jv(2, (p_vals*a)) / (kv(2, q_vals * a))
+B = A *  jv(m, (p*a)) / (kv(m, q * a))
 
-beta = beta_val_m2
+
 
 phi = np.linspace(0, (2 * np.pi), len(B))
 
-m = 2
+
 
 omega = np.sqrt((k0 **2)/ (epsilon_0 * mu_0))
 
 r = np.linspace(-a, a, len(B))
 
+
+
+
+
 #%%
 
 
-E_z = A * jv(2, (p_vals * r))
+E_z = A * jv(2, (p * r))
 
 
 plt.plot(r, E_z)
 plt.show()
 
 
-E_r = - ((1j * beta) / (p_vals **2))  *  ((A * p_vals * jvp(m, (p_vals * r), n = 1)) + (1j * omega * (mu_0 * m / beta * r) * B * jv(m, (p_vals * r))) )
+E_r = - ((1j * beta) / (p **2))  *  ((A * p * jvp(m, (p * r), n = 1)) + (1j * omega * (mu_0 * m / beta * r) * B * jv(m, (p * r))) )
 
 plt.plot(r, E_r)
 plt.show()
 
 
-E_phi =  - ((1j * beta) / (p_vals **2)) * (((1j * m / r) * A * jv(m, (p_vals * r))) - ((omega * mu_0 / beta) * p_vals * B * jvp(m, (p_vals * r), n=1)))
+E_phi =  - ((1j * beta) / (p **2)) * (((1j * m / r) * A * jv(m, (p * r))) - ((omega * mu_0 / beta) * p * B * jvp(m, (p * r), n=1)))
 
 
 plt.plot(r, E_phi)
@@ -323,12 +335,12 @@ plt.show()
 
 #%%
 
-#l = 1
+l = 1
 # l can also be m + 1 or m - 1
 
-#E_vals = E_r * np.exp((1j * l * E_phi) - (1j * beta * E_z))
+E_vals = E_r * np.exp((1j * l * E_phi) - (1j * beta * E_z))
 
-#plt.plot(r, E_vals)
+plt.plot(r, E_vals)
 
 #%%
 
@@ -432,30 +444,42 @@ plt.show()
 
 # this kinda works for plotting - not too sure about the equations though!
 
-
-
-
-#%%
-
 fig, ax = plt.subplots(subplot_kw={'projection': 'polar'})
 ax.plot(theta_vals, r_vals, linewidth = 0, marker = '.')
-
+plt.show()
 
 # Yeah that doesn't seem quite right
 # Trying the cartesian equations?
+
+#%%
+
+# Intentsity distribution in polars
+
+# amplitude from intensity formula
+
+intensity_polar = (np.abs(E_r) ** 2) + (np.abs(E_phi **2))
+plt.plot(r, intensity_polar)
+
+#%%
+
+amplitude_polar = np.sqrt((np.abs(E_r) ** 2) + (np.abs(E_phi **2)))
+plt.plot(r, amplitude_polar)
 
 
 #%%
 
 # Cartesian version
 
-r = np.linspace(0, a, len(B))
-r_clad = np.linspace(a, 3 * a, len(B))
 
+r = np.linspace(-a, a, 1000)
+r_clad_pos = np.linspace(a, 3 * a, 500)
+r_clad_neg = np.linspace(-3 * a, - a, 500)
+r_clad = np.hstack((r_clad_neg, r_clad_pos))
+r_tot = np.hstack((r_clad_neg,r, r_clad_pos))
 m = 2
 beta = beta_val_m2
 
-phi = np.linspace(0, (2 * np.pi), len(B))
+phi = np.linspace(0, (2 * np.pi), 1000)
 
 #%%
 
@@ -463,20 +487,20 @@ phi = np.linspace(0, (2 * np.pi), len(B))
 
 # core r < a
 
-l = 1
+l = m
 
 A = 1
-B = A *  jv(l, (p_vals*a)) / (kv(l, q_vals * a))
+B = A *  jv(l, (p*a)) / (kv(l, q * a))
 
 # l can also be m + 1 or m - 1
 # this may be the 3 fields that the question mentioned?
 # maybe
 
-E_x_core_y_pol = 0 * B
+E_x_core_y_pol = 0 * r
 
-E_y_core_y_pol = A * jv(l, (p_vals * r))
+E_y_core_y_pol = A * jv(l, (p * r))
 
-E_z_core_y_pol = (p_vals / beta) * (A / 2) * ((jv(l+1, (p_vals * r)) * np.exp(1j * phi)) + (jv(l-1, (p_vals * r)) * np.exp(-1j * phi)))
+E_z_core_y_pol = (p / beta) * (A / 2) * ((jv(l+1, (p * r)) * np.exp(1j * phi)) + (jv(l-1, (p * r)) * np.exp(-1j * phi)))
 
 
 # amplitude in plane perpendicular to fibre axis - just E_y in this case since E_x is zero?
@@ -484,11 +508,11 @@ E_z_core_y_pol = (p_vals / beta) * (A / 2) * ((jv(l+1, (p_vals * r)) * np.exp(1j
 
 # cladding r > a
 
-E_x_clad_y_pol = 0 * B
+E_x_clad_y_pol = 0 * r
 
-E_y_clad_y_pol = B * kv(l, (q_vals * r_clad))
+E_y_clad_y_pol = B * kv(l, (q * np.abs(r_clad)))
 
-E_z_clad_y_pol = (q_vals / beta) * (B/2) * ((kv(l+1, (q_vals * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q_vals * r_clad)) * np.exp(-1j * phi)))
+E_z_clad_y_pol = (q / beta) * (B/2) * ((kv(l+1, (q * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q * r_clad)) * np.exp(-1j * phi)))
 
 
 plt.plot(r, E_y_core_y_pol, label = 'E_y')
@@ -504,19 +528,19 @@ plt.show()
 
 # core r < a
 
-E_x_core_x_pol = A * jv(l, (p_vals * r))
+E_x_core_x_pol = A * jv(l, (p * r))
 
-E_y_core_x_pol = B * 0
+E_y_core_x_pol = r * 0
 
-E_z_core_x_pol = 1j * (p_vals / beta) * (A/2) * ((jv(l+1, p_vals * r) * np.exp(1j * phi)) - (jv(l-1, p_vals * r) * np.exp(-1j * phi)))
+E_z_core_x_pol = 1j * (p / beta) * (A/2) * ((jv(l+1, p * r) * np.exp(1j * phi)) - (jv(l-1, p * r) * np.exp(-1j * phi)))
 
 # cladding r > a
 
-E_x_clad_x_pol = A * kv(l, (p_vals * r_clad))
+E_x_clad_x_pol = A * kv(l, (p * np.abs(r_clad)))
 
-E_y_clad_x_pol = 0 * B
+E_y_clad_x_pol = r * 0
 
-E_z_clad_x_pol = 1j * (q_vals/beta) * (B/2) * ((kv(l+1, q_vals * r_clad) * np.exp(1j * phi)) + (kv(l-1, q_vals * r_clad) * np.exp(-1j * phi)))
+E_z_clad_x_pol = 1j * (q/beta) * (B/2) * ((kv(l+1, q * r_clad) * np.exp(1j * phi)) + (kv(l-1, q * r_clad) * np.exp(-1j * phi)))
 
 # something strange going on with plotting complex values here?
 
@@ -531,31 +555,39 @@ plt.plot(r_clad, E_x_clad_x_pol, label = 'E_x')
 plt.legend()
 plt.show()
 
+amplitude_core_1 = np.sqrt((E_y_core_y_pol ** 2) + (E_x_core_x_pol ** 2))
+
+
+amplitude_clad_1 = np.sqrt((E_y_clad_y_pol ** 2) + (E_x_clad_x_pol ** 2))
+
+
+e_field_amp_1 = np.hstack((amplitude_core_1, amplitude_clad_1))
+
 
 #%%
 
 l = m + 1
 
 A = 1
-B = A *  jv(l, (p_vals*a)) / (kv(l, q_vals * a))
+B = A *  jv(l, (p*a)) / (kv(l, q * a))
 
 # Y-polarised
 
-E_x_core_y_pol = 0 * B
+E_x_core_y_pol = 0 * r
 
-E_y_core_y_pol = A * jv(l, (p_vals * r))
+E_y_core_y_pol = A * jv(l, (p * r))
 
-E_z_core_y_pol = (p_vals / beta) * (A / 2) * ((jv(l+1, (p_vals * r)) * np.exp(1j * phi)) + (jv(l-1, (p_vals * r)) * np.exp(-1j * phi)))
+E_z_core_y_pol = (p / beta) * (A / 2) * ((jv(l+1, (p * r)) * np.exp(1j * phi)) + (jv(l-1, (p * r)) * np.exp(-1j * phi)))
 
 
 # cladding r > a
 
 
-E_x_clad_y_pol = 0 * B
+E_x_clad_y_pol = 0 * r
 
-E_y_clad_y_pol = B * kv(l, (q_vals * r_clad))
+E_y_clad_y_pol = B * kv(l, (q * np.abs(r_clad)))
 
-E_z_clad_y_pol = (q_vals / beta) * (B/2) * ((kv(l+1, (q_vals * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q_vals * r_clad)) * np.exp(-1j * phi)))
+E_z_clad_y_pol = (q / beta) * (B/2) * ((kv(l+1, (q * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q * r_clad)) * np.exp(-1j * phi)))
 
 
 plt.plot(r, E_y_core_y_pol, label = 'E_y')
@@ -571,19 +603,19 @@ plt.show()
 
 # core r < a
 
-E_x_core_x_pol = A * jv(l, (p_vals * r))
+E_x_core_x_pol = A * jv(l, (p * r))
 
-E_y_core_x_pol = B * 0
+E_y_core_x_pol = B * r
 
-E_z_core_x_pol = 1j * (p_vals / beta) * (A/2) * ((jv(l+1, p_vals * r) * np.exp(1j * phi)) - (jv(l-1, p_vals * r) * np.exp(-1j * phi)))
+E_z_core_x_pol = 1j * (p / beta) * (A/2) * ((jv(l+1, p * r) * np.exp(1j * phi)) - (jv(l-1, p * r) * np.exp(-1j * phi)))
 
 # cladding r > a
 
-E_x_clad_x_pol = A * kv(l, (p_vals * r_clad))
+E_x_clad_x_pol = A * kv(l, (p * np.abs(r_clad)))
 
-E_y_clad_x_pol = 0 * B
+E_y_clad_x_pol = 0 * r
 
-E_z_clad_x_pol = 1j * (q_vals/beta) * (B/2) * ((kv(l+1, q_vals * r_clad) * np.exp(1j * phi)) + (kv(l-1, q_vals * r_clad) * np.exp(-1j * phi)))
+E_z_clad_x_pol = 1j * (q/beta) * (B/2) * ((kv(l+1, q * r_clad) * np.exp(1j * phi)) + (kv(l-1, q * r_clad) * np.exp(-1j * phi)))
 
 plt.plot(r, E_y_core_x_pol, label = 'E_y')
 plt.plot(r, E_z_core_x_pol, label = 'E_z')
@@ -594,30 +626,38 @@ plt.plot(r_clad, E_x_clad_x_pol, label = 'E_x')
 plt.legend()
 plt.show()
 
+amplitude_core_m_plus_1 = np.sqrt((E_y_core_y_pol ** 2) + (E_x_core_x_pol ** 2))
+
+
+amplitude_clad_m_plus_1 = np.sqrt((E_y_clad_y_pol ** 2) + (E_x_clad_x_pol ** 2))
+
+
+e_field_amp_m_plus_1 = np.hstack((amplitude_core_m_plus_1, amplitude_clad_m_plus_1))
+
 
 #%%
 
 l = m - 1
 
 A = 1
-B = A *  jv(l, (p_vals*a)) / (kv(l, q_vals * a))
+B = A *  jv(l, (p*a)) / (kv(l, q * a))
 
 # Y-polarised
 
-E_x_core_y_pol = 0 * B
+E_x_core_y_pol = 0 * r
 
-E_y_core_y_pol = A * jv(l, (p_vals * r))
+E_y_core_y_pol = A * jv(l, (p * r))
 
-E_z_core_y_pol = (p_vals / beta) * (A / 2) * ((jv(l+1, (p_vals * r)) * np.exp(1j * phi)) + (jv(l-1, (p_vals * r)) * np.exp(-1j * phi)))
+E_z_core_y_pol = (p / beta) * (A / 2) * ((jv(l+1, (p * r)) * np.exp(1j * phi)) + (jv(l-1, (p * r)) * np.exp(-1j * phi)))
 
 # cladding r > a
 
 
-E_x_clad_y_pol = 0 * B
+E_x_clad_y_pol = 0 * r
 
-E_y_clad_y_pol = B * kv(l, (q_vals * r_clad))
+E_y_clad_y_pol = B * kv(l, (q * np.abs(r_clad)))
 
-E_z_clad_y_pol = (q_vals / beta) * (B/2) * ((kv(l+1, (q_vals * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q_vals * r_clad)) * np.exp(-1j * phi)))
+E_z_clad_y_pol = (q / beta) * (B/2) * ((kv(l+1, (q * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q * r_clad)) * np.exp(-1j * phi)))
 
 
 plt.plot(r, E_y_core_y_pol, label = 'E_y')
@@ -627,21 +667,23 @@ plt.plot(r_clad, E_z_clad_y_pol, label = 'E_z')
 plt.legend()
 plt.show()
 
+
+
 # X - polarised
 
-E_x_core_x_pol = A * jv(l, (p_vals * r))
+E_x_core_x_pol = A * jv(l, (p * r))
 
-E_y_core_x_pol = B * 0
+E_y_core_x_pol = r * 0
 
-E_z_core_x_pol = 1j * (p_vals / beta) * (A/2) * ((jv(l+1, p_vals * r) * np.exp(1j * phi)) - (jv(l-1, p_vals * r) * np.exp(-1j * phi)))
+E_z_core_x_pol = 1j * (p / beta) * (A/2) * ((jv(l+1, p * r) * np.exp(1j * phi)) - (jv(l-1, p * r) * np.exp(-1j * phi)))
 
 # cladding r > a
 
-E_x_clad_x_pol = A * kv(l, (p_vals * r_clad))
+E_x_clad_x_pol = A * kv(l, (p * np.abs(r_clad)))
 
-E_y_clad_x_pol = 0 * B
+E_y_clad_x_pol = 0 * r
 
-E_z_clad_x_pol = 1j * (q_vals/beta) * (B/2) * ((kv(l+1, q_vals * r_clad) * np.exp(1j * phi)) + (kv(l-1, q_vals * r_clad) * np.exp(-1j * phi)))
+E_z_clad_x_pol = 1j * (q/beta) * (B/2) * ((kv(l+1, q * r_clad) * np.exp(1j * phi)) + (kv(l-1, q * r_clad) * np.exp(-1j * phi)))
 
 plt.plot(r, E_y_core_x_pol, label = 'E_y')
 plt.plot(r, E_z_core_x_pol, label = 'E_z')
@@ -653,7 +695,63 @@ plt.legend()
 plt.show()
 
 
+
+
+#fig,ax = plt.subplots()
+#ax.scatter(E_z_core_x_pol.real,E_z_core_x_pol.imag, marker = '.')
+#ax.scatter(E_z_clad_x_pol.real,E_z_core_x_pol.imag, marker = '.')
+#plt.show()
+
+
+
+# intensity is proportional to amlpitude squared
+# question 6 gives intensity as ex^2 + e_y^2 
+# so amplitude must be sqrt (ex^2 + ey^2)
+
+
+amplitude_core_m_minus_1 = np.sqrt((E_y_core_y_pol ** 2) + (E_x_core_x_pol ** 2))
+
+plt.plot(r, amplitude_core_m_minus_1)
+plt.show()
+
+amplitude_clad_m_minus_1 = np.sqrt((E_y_clad_y_pol ** 2) + (E_x_clad_x_pol ** 2))
+
+plt.plot(r_clad, amplitude_clad_m_minus_1)
+plt.show()
+
+e_field_amp_m_minus_1 = np.hstack((amplitude_core_m_minus_1, amplitude_clad_m_minus_1))
+
+
+
 #%%
+
+r_outoforder = np.hstack((r, r_clad))
+
+plt.plot(r_outoforder, e_field_amp_m_minus_1, linewidth = 0, marker = '.')
+plt.show()
+
+
+plt.plot(r_outoforder, e_field_amp_m_plus_1, linewidth = 0, marker = '.')
+plt.show()
+
+
+plt.plot(r_outoforder, e_field_amp_1, linewidth = 0, marker = '.')
+plt.show()
+
+#%%
+
+# intensity distribution of the mode
+
+
+plt.plot(r_outoforder, e_field_amp_1 **2, linewidth = 0, marker = '.')
+plt.title('M = 2')
+plt.grid()
+plt.show()
+
+#%%
+
+
+
 
 
 
