@@ -299,13 +299,14 @@ B = A *  jv(m, (p*a)) / (kv(m, q * a))
 
 
 
-phi = np.linspace(0, (2 * np.pi), len(B))
+phi = np.linspace(0, (2 * np.pi), 1000)
 
+r = np.linspace(-a, a, 1000)
 
 
 omega = np.sqrt((k0 **2)/ (epsilon_0 * mu_0))
 
-r = np.linspace(-a, a, len(B))
+
 
 
 
@@ -476,10 +477,31 @@ r_clad_pos = np.linspace(a, 3 * a, 500)
 r_clad_neg = np.linspace(-3 * a, - a, 500)
 r_clad = np.hstack((r_clad_neg, r_clad_pos))
 r_tot = np.hstack((r_clad_neg,r, r_clad_pos))
+
 m = 2
 beta = beta_val_m2
 
 phi = np.linspace(0, (2 * np.pi), 1000)
+
+#x_vals_core = r * np.cos(phi)
+#y_vals_core = r * np.sin(phi)
+
+#x_vals_clad = r_clad * np.cos(phi)
+#y_vals_clad = r_clad * np.sin(phi)
+
+pos_x_phi = np.hstack((phi[750:], phi[:250]))
+neg_x_phi = phi[250:750]
+
+phi_neg_to_pos = np.hstack((neg_x_phi, pos_x_phi))
+
+x_vals_core = r * np.cos(phi_neg_to_pos)
+x_vals_clad = r_clad * np.cos(phi_neg_to_pos)
+
+y_vals_core = r * np.sin(phi_neg_to_pos)
+y_vals_clad = r_clad * np.sin(phi_neg_to_pos)
+
+
+
 
 #%%
 
@@ -562,6 +584,56 @@ amplitude_clad_1 = np.sqrt((E_y_clad_y_pol ** 2) + (E_x_clad_x_pol ** 2))
 
 
 e_field_amp_1 = np.hstack((amplitude_core_1, amplitude_clad_1))
+
+#%%
+
+plt.plot(x_vals_core, E_x_core_x_pol)
+#plt.show()
+
+plt.plot(y_vals_core, E_y_core_y_pol)
+plt.show()
+
+x_y_coords = np.column_stack((x_vals_core, y_vals_core))
+
+# x and y are the same
+# only z is different
+# god fucking damnit
+
+E_z_core_tot =  E_z_core_x_pol + E_z_core_y_pol
+
+plt.plot(r, E_z_core_tot)
+plt.show()
+
+z_vals = np.linspace(0,5,1000)
+
+
+plt.plot(z_vals, np.abs(E_z_core_tot))
+
+#%%
+
+
+
+y,x = np.meshgrid(y_vals_core, x_vals_core)
+z = np.column_stack((E_x_core_x_pol, E_y_core_y_pol))
+z = z[:-1, :-1]
+z_min, z_max = -np.abs(z).max(), np.abs(z).max()
+
+fig, ax = plt.subplots()
+
+c = ax.pcolormesh(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.set_title('pcolormesh')
+# set the limits of the plot to the limits of the data
+ax.axis([x.min(), x.max(), y.min(), y.max()])
+fig.colorbar(c, ax=ax)
+
+plt.show()
+
+#%%
+
+# plot heat map
+# somehow
+# idk
+
 
 
 #%%
@@ -657,7 +729,7 @@ E_x_clad_y_pol = 0 * r
 
 E_y_clad_y_pol = B * kv(l, (q * np.abs(r_clad)))
 
-E_z_clad_y_pol = (q / beta) * (B/2) * ((kv(l+1, (q * r_clad)) * np.exp(1j * phi)) - (kv(l-1, (q * r_clad)) * np.exp(-1j * phi)))
+E_z_clad_y_pol = (q / beta) * (B/2) * ((kv(l+1, (q * np.abs(r_clad))) * np.exp(1j * phi)) - (kv(l-1, (q * np.abs(r_clad))) * np.exp(-1j * phi)))
 
 
 plt.plot(r, E_y_core_y_pol, label = 'E_y')
@@ -683,7 +755,7 @@ E_x_clad_x_pol = A * kv(l, (p * np.abs(r_clad)))
 
 E_y_clad_x_pol = 0 * r
 
-E_z_clad_x_pol = 1j * (q/beta) * (B/2) * ((kv(l+1, q * r_clad) * np.exp(1j * phi)) + (kv(l-1, q * r_clad) * np.exp(-1j * phi)))
+E_z_clad_x_pol = 1j * (q/beta) * (B/2) * ((kv(l+1, q * np.abs(r_clad)) * np.exp(1j * phi)) + (kv(l-1, q * np.abs(r_clad)) * np.exp(-1j * phi)))
 
 plt.plot(r, E_y_core_x_pol, label = 'E_y')
 plt.plot(r, E_z_core_x_pol, label = 'E_z')
@@ -694,7 +766,11 @@ plt.plot(r_clad, E_x_clad_x_pol, label = 'E_x')
 plt.legend()
 plt.show()
 
+#%%
 
+
+#plt.imshow(E_z_clad_x_pol, cmap='hot', interpolation='nearest')
+#plt.show()
 
 
 #fig,ax = plt.subplots()
@@ -702,11 +778,36 @@ plt.show()
 #ax.scatter(E_z_clad_x_pol.real,E_z_core_x_pol.imag, marker = '.')
 #plt.show()
 
+# generate 2 2d grids for the x & y bounds
+y,x = np.meshgrid(np.linspace(-3 * a, 3 * a, 100), np.linspace(-3 * a, 3 * a, 100))
+
+
+z = (1 - x / 2. + x ** 5 + y ** 3) * np.exp(-x ** 2 - y ** 2)
+# x and y are bounds, so z should be the value *inside* those bounds.
+# Therefore, remove the last value from the z array.
+z = z[:-1, :-1]
+z_min, z_max = -np.abs(z).max(), np.abs(z).max()
+
+fig, ax = plt.subplots()
+
+c = ax.pcolormesh(x, y, z, cmap='RdBu', vmin=z_min, vmax=z_max)
+ax.set_title('pcolormesh')
+# set the limits of the plot to the limits of the data
+ax.axis([x.min(), x.max(), y.min(), y.max()])
+fig.colorbar(c, ax=ax)
+
+plt.show()
+
+#%%
+
+# Task 6
 
 
 # intensity is proportional to amlpitude squared
 # question 6 gives intensity as ex^2 + e_y^2 
 # so amplitude must be sqrt (ex^2 + ey^2)
+
+
 
 
 amplitude_core_m_minus_1 = np.sqrt((E_y_core_y_pol ** 2) + (E_x_core_x_pol ** 2))
@@ -744,13 +845,23 @@ plt.show()
 
 
 plt.plot(r_outoforder, e_field_amp_1 **2, linewidth = 0, marker = '.')
-plt.title('M = 2')
+plt.title('L = 2')
 plt.grid()
 plt.show()
 
 #%%
 
+plt.plot(r_outoforder, e_field_amp_m_minus_1 **2, linewidth = 0, marker = '.')
+plt.title('L = 1')
+plt.grid()
+plt.show()
 
+#%%
+
+plt.plot(r_outoforder, e_field_amp_m_plus_1 **2, linewidth = 0, marker = '.')
+plt.title('L = 3')
+plt.grid()
+plt.show()
 
 
 
