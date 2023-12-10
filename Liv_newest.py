@@ -141,9 +141,13 @@ for l in np.arange(0,4,1):
 
 "Task 5"
 
+# using  = 1:
+#beta = 6530758
+#m = 1
 
-beta = 6530758
-m = 1
+#using m = 4
+beta = 6460376
+m = 4
 
 eps0 = epsilon_0
 mu0 = mu_0
@@ -228,7 +232,12 @@ plt.show()
 
 "Task 6"
 
-n_forI = 6530758 / k0
+#using m = 1
+#n_forI = 6530758 / k0
+
+
+#using m = 4
+n_forI = 6460376 / k0
 
 # Intensity Distribution
 I =  ((c * epsilon_0)/2) * (n_forI **2) * ((Er_vals * np.conjugate(Er_vals)) + (Ephi_vals * np.conjugate(Ephi_vals)))
@@ -248,7 +257,7 @@ plt.show()
 "Task 7"
 
 def calc_Dw(pval, step=0.0001):
-    c = 3e10
+    c = 3e8
     h = wavelength * step
     
     wave0 = wavelength - wavelength * step
