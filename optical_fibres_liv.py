@@ -334,6 +334,9 @@ E_phi =  - ((1j * beta) / (p **2)) * (((1j * m / r) * A * jv(m, (p * r))) - ((om
 plt.plot(r, E_phi)
 plt.show()
 
+
+# plot these as a contour plot
+
 #%%
 
 l = 1
@@ -458,7 +461,7 @@ plt.show()
 
 # amplitude from intensity formula
 
-intensity_polar = (np.abs(E_r) ** 2) + (np.abs(E_phi **2))
+intensity_polar = (np.abs(E_r) ** 2) + (np.abs(E_phi) **2)
 plt.plot(r, intensity_polar)
 
 #%%
@@ -863,8 +866,50 @@ plt.title('L = 3')
 plt.grid()
 plt.show()
 
+#%%
 
+import numpy as np
+import matplotlib.pyplot as plt
 
+# Define the dimensions and resolution of the plane
+x_min, x_max, y_min, y_max = x_vals_core[0], x_vals_core[-1], y_vals_core[0], y_vals_core[-1]
+resolution = 1e-7
+
+# Create a grid for the plane
+x, y = np.meshgrid(np.arange(x_min, x_max, 1e-10), np.arange(y_min, y_max, 1e-7))
+
+# Assuming you have functions to calculate the electric field components at each point
+def calculate_electric_field(x, y):
+    # Replace these with your actual functions or data
+    r = np.sqrt(x**2 + y**2)
+    phi = phi = np.arctan(y/x)
+    ex_amplitude = A * jv(l, (p * r))
+    ey_amplitude = A * jv(l, (p * r))
+    ez_amplitude = ((p / beta) * (A / 2) * ((jv(l+1, (p * r)) * np.exp(1j * phi)) + (jv(l-1, (p * r)) * np.exp(-1j * phi)))) + (1j * (p / beta) * (A/2) * ((jv(l+1, p * r) * np.exp(1j * phi)) - (jv(l-1, p * r) * np.exp(-1j * phi))))
+    return ex_amplitude, ey_amplitude, ez_amplitude
+
+# Calculate electric field components at each point on the plane
+ex, ey, ez = calculate_electric_field(x, y)
+
+# Plotting
+fig, axs = plt.subplots(1, 3, figsize=(15, 5))
+
+# Plot Ex component
+axs[0].contourf(x, y, ex, cmap='viridis')
+axs[0].set_title('Ex Amplitude')
+
+# Plot Ey component
+axs[1].contourf(x, y, ey, cmap='viridis')
+axs[1].set_title('Ey Amplitude')
+
+# Plot Ez component
+axs[2].contourf(x, y, np.abs(ez), cmap='viridis')
+axs[2].set_title('Ez Amplitude')
+
+plt.tight_layout()
+plt.show()
+
+plt.contourf(x,y, )
 
 
 
